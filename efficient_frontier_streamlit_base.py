@@ -4,7 +4,7 @@ import datetime as dt
 import streamlit as st
 import matplotlib.pyplot as plt
 
-from efficient_frontier import *
+from streamlit_efficient_frontier import *
 
 returns_methods = ["means_returns"]
 risk_methods = ["covariance"]
