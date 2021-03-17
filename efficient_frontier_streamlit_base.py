@@ -1,9 +1,7 @@
 import pandas as pd
-import altair as alt
 import yfinance as yf
 import datetime as dt
 import streamlit as st
-import pandas_datareader as web
 import matplotlib.pyplot as plt
 
 from efficient_frontier import *
