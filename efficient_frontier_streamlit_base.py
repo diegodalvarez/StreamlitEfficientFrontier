@@ -72,8 +72,13 @@ if find_frontier == True:
         plt.ylabel("return")
         st.pyplot(fig)
         
-        st.write("maximum sharpe portfolio", portfolios[0])
-        st.write("mininum variance portfolio", portfolios[1]) 
+        col1, col2 = st.beta_columns(2)
+        
+        with col1:
+            st.write("maximum sharpe portfolio", portfolios[0])
+            
+        with col2:
+            st.write("mininum variance portfolio", portfolios[1]) 
 
 st.write('Disclaimer: Information and output provided on this site does \
          not constitute investment advice.')
