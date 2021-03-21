@@ -46,7 +46,16 @@ if find_frontier == True:
     
     ef = Efficient_Frontier(df, tickers)
     
+    st.subheader('Options for calculating returns')
+    with st.beta_expander("mean returns"):
+        ("this gets the daily percent change and then gets the average of that distribution")  
+
     returns_method = st.selectbox("Select returns method", returns_methods)
+    
+    st.subheader("Options for risk measures")
+    with st.beta_expander("covariance"):
+        ("this creates a covariance matrix of the daily percentage changes of each stock")
+    
     risk_measure = st.selectbox("Select risk method", risk_methods)
     num_portfolios_resp = st.number_input('Please enter number of simulations', min_value = 0, max_value = 1000000, step = 1)
     
@@ -83,5 +92,3 @@ if find_frontier == True:
 st.write('Disclaimer: Information and output provided on this site does \
          not constitute investment advice.')
 st.write('Created by Diego Alvarez')
-    
-    
