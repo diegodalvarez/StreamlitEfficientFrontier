@@ -73,7 +73,6 @@ if find_frontier == True:
         
         plt.scatter(portfolios[0][1], portfolios[0][0], marker=(5,1,0),color='r',s=500)
         plt.scatter(portfolios[1][1], portfolios[1][0], marker=(5,1,0),color='g',s=500)
-        plt.colorbar(cmap = "RdYlBu")
         plt.xlabel("standard deviation")
         plt.ylabel("return")
         st.pyplot(fig)
