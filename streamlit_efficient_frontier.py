@@ -71,3 +71,5 @@ class Efficient_Frontier:
         min_vol_port = results.iloc[results['stdev'].idxmin()]
         
         return max_sharpe_port, min_vol_port
+        
+
