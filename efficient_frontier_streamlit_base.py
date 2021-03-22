@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from streamlit_efficient_frontier import *
 
-returns_methods = ["means_returns"]
+returns_methods = ["mean_returns"]
 risk_methods = ["covariance"]
 
 st.header("Efficient Frontier")
@@ -22,7 +22,7 @@ status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Se
 
 today = dt.date.today()
 
-before = today - dt.timedelta(days=700)
+before = today - dt.timedelta(days=3653)
 start_date = st.sidebar.date_input('Start date', before)
 end_date = st.sidebar.date_input('End date', today)
 
@@ -59,15 +59,12 @@ if find_frontier == True:
     risk_measure = st.selectbox("Select risk method", risk_methods)
     num_portfolios_resp = st.number_input('Please enter number of simulations', min_value = 0, max_value = 1000000, step = 1)
     
-    returns_method = df.pct_change().mean()
-    risk_measure = df.pct_change().cov()
-    num_portfolios = num_portfolios_resp
     rf = 0.0
     
     frontier_radio = st.radio('Please click Search when you are ready to run.', ('Entry', 'Search'))
     if frontier_radio == "Search":
         
-        results_frame = ef.simulate_random_portfolios(num_portfolios, returns_method, risk_measure, rf, tickers)   
+        results_frame = ef.simulate_random_portfolios(returns_method, risk_measure, num_portfolios_resp, rf, tickers)   
         
         portfolios = ef.find_portfolios(results_frame)
         
@@ -76,7 +73,7 @@ if find_frontier == True:
         
         plt.scatter(portfolios[0][1], portfolios[0][0], marker=(5,1,0),color='r',s=500)
         plt.scatter(portfolios[1][1], portfolios[1][0], marker=(5,1,0),color='g',s=500)
-        plt.colorbar()
+        plt.colorbar(cmap = "RdYlBu")
         plt.xlabel("standard deviation")
         plt.ylabel("return")
         st.pyplot(fig)
