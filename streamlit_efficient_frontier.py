@@ -60,6 +60,7 @@ class Efficient_Frontier:
                 results_matrix[j+3,i] = weights[j]       
                 
         tickers = tickers.split(',')
+        print(tickers)
         results_df = pd.DataFrame(results_matrix.T,columns=['ret','stdev','sharpe'] + [ticker for ticker in tickers])
         
         return results_df  
