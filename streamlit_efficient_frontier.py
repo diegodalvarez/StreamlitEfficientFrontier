@@ -5,18 +5,23 @@ import streamlit as st
 
 class Efficient_Frontier:
     
-    def __init__(self, stock_df, tickers):
+    def __init__(self, stock_df, tickers, *projected_returns):
         
         #what is inputted
         self.stock_df = stock_df
         self.tickers = tickers
+        self.projected_returns = pd.DataFrame(projected_returns).transpose().squeeze()
     
-    def returns_calculation(self, method):
+    def returns_calculation(self, method, *projected_returns):
         
         if method == "mean_returns":
             
+            st.write("test oop mean returns")
             returns = self.stock_df.pct_change().mean()
             return returns
+        
+        if method == "projected_prices":
+            return self.projected_returns
         
     def risk_calculation(self, method):
         
@@ -24,7 +29,7 @@ class Efficient_Frontier:
             
             risk = self.stock_df.pct_change().cov()
             return risk
-    
+
     def calc_portfolio_perf(self, weights, mean_returns, cov, rf):
         
         portfolio_return = np.sum(mean_returns * weights) * 252
@@ -37,7 +42,7 @@ class Efficient_Frontier:
         
         returns = self.returns_calculation(returns_method)
         risk = self.risk_calculation(risk_method)
-
+        
         results_matrix = np.zeros((len(returns)+3, num_portfolios))
         
         for i in range(num_portfolios):
@@ -57,8 +62,13 @@ class Efficient_Frontier:
             
             for j in range(len(weights)):
                 results_matrix[j+3,i] = weights[j]       
-                
-        tickers = tickers.split(',')
+        
+        ticker_type_test = isinstance(tickers, str)
+        
+        if ticker_type_test == True:
+            tickers = tickers.split(',')
+            
+            
         results_df = pd.DataFrame(results_matrix.T,columns=['ret','stdev','sharpe'] + [ticker for ticker in tickers])
         
         return results_df  
@@ -70,5 +80,3 @@ class Efficient_Frontier:
         min_vol_port = results.iloc[results['stdev'].idxmin()]
         
         return max_sharpe_port, min_vol_port
-        
-
