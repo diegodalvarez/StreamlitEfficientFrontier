@@ -3,3 +3,4 @@ pandas==1.1.3
 streamlit==0.76.0
 yfinance==0.1.55
 matplotlib==3.3.2
+pandas-datareader==0.9.0
