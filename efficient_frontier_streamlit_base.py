@@ -100,7 +100,7 @@ if find_frontier == True:
     num_portfolios_resp = st.number_input('Please enter number of simulations', min_value = 0, max_value = 1000000, step = 1)
     
     rf_end = dt.datetime.today()
-    rf_start = rf_end - dt.timedelta(days = 4)
+    rf_start = rf_end - dt.timedelta(days = 10)
     
     rf_input = st.selectbox("select risk free rate", risk_free_rates)
     
