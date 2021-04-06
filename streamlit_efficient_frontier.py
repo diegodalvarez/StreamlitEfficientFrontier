@@ -16,7 +16,6 @@ class Efficient_Frontier:
         
         if method == "mean_returns":
             
-            st.write("test oop mean returns")
             returns = self.stock_df.pct_change().mean()
             return returns
         
