@@ -22,6 +22,16 @@ class Efficient_Frontier:
         if method == "projected_prices":
             return self.projected_returns
         
+        if method == "log_returns":
+
+            returns = self.stock_df.pct_change()
+            for i in self.stock_df.columns:
+                
+                returns[i] = np.log(1 + returns[i])
+
+            returns = returns.mean()
+            return returns     
+        
     def risk_calculation(self, method):
         
         if method == "covariance" or method == "cov":
