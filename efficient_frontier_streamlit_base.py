@@ -174,10 +174,10 @@ if sidebar_function == "efficient frontier":
             col1, col2 = st.beta_columns(2)
             
             with col1:
-                st.write("maximum sharpe portfolio", portfolios[0])
-                
+                st.write("mininum variance portfolio (green)", portfolios[1]) 
+            
             with col2:
-                st.write("mininum variance portfolio", portfolios[1]) 
+                st.write("maximum sharpe portfolio (red)", portfolios[0])
 
 if sidebar_function == "ticker drop":
     
