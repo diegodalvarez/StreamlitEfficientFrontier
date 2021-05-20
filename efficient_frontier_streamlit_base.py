@@ -36,7 +36,7 @@ sidebar_function = st.sidebar.selectbox("select a function", function_list)
 if sidebar_function == "efficient frontier":
                      
     tickers = st.text_input("Please enter tickers here (seperate):")
-    st.text("ex for Microsoft, Apple, Amazon, Google, Facebook would be 'MSFT, AAPL, AMZN, GOOG, FB'")
+    st.text("ex for Microsoft, Apple, Amazon, Google, Facebook would be: MSFT, AAPL, AMZN, GOOG, FB")
     status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
     
     df = pd.DataFrame()
