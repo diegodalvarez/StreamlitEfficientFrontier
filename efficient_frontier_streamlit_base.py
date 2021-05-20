@@ -10,7 +10,7 @@ from streamlit_efficient_frontier import *
 
 returns_methods = ["mean_returns", "log_returns", "projected_prices"]
 risk_methods = ["covariance"]
-risk_free_rates = ["4 week treasury bill", "3 month treasury bill", "6 month treasury bill", "1 year treasury bill", "manual input"]
+risk_free_rates = ["no risk free rate", "4 week treasury bill", "3 month treasury bill", "6 month treasury bill", "1 year treasury bill", "manual input"]
 function_list = ['efficient frontier', 'ticker drop']
 
 st.header("Efficient Frontier")
@@ -113,6 +113,9 @@ if sidebar_function == "efficient frontier":
         rf_start = rf_end - dt.timedelta(days = 10)
         
         rf_input = st.selectbox("select risk free rate", risk_free_rates)
+        
+        if rf_input == "no risk free rate":
+            rf = 0.0
         
         if rf_input == "4 week treasury bill":
             
