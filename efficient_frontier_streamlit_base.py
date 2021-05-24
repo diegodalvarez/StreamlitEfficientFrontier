@@ -294,3 +294,6 @@ if sidebar_function == "ticker drop":
 st.write('Disclaimer: Information and output provided on this site does \
          not constitute investment advice.')
 st.write('Created by Diego Alvarez')
+st.write("[GitHub](https://github.com/diegodalvarez) |", 
+         "[LinkedIn](https://www.linkedin.com/in/diegodalvarez/) |",
+         "[Medium](https://dial0663.medium.com/)")
