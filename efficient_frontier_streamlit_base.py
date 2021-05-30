@@ -3,15 +3,18 @@ import pandas as pd
 import yfinance as yf
 import datetime as dt
 import streamlit as st
+import plotly.express as px
 import matplotlib.pyplot as plt
 import pandas_datareader as web
+import plotly.graph_objects as go
 
 from streamlit_efficient_frontier import *
+from streamlit_var import *
 
 returns_methods = ["mean_returns", "log_returns", "projected_prices"]
 risk_methods = ["covariance"]
 risk_free_rates = ["no risk free rate", "4 week treasury bill", "3 month treasury bill", "6 month treasury bill", "1 year treasury bill", "manual input"]
-function_list = ['efficient frontier', 'ticker drop']
+function_list = ['efficient frontier', 'ticker drop', 'Value at Risk (VaR) analysis']
 
 st.header("Efficient Frontier")
 with st.beta_expander('purpose'):
@@ -37,12 +40,12 @@ if sidebar_function == "efficient frontier":
                      
     tickers = st.text_input("Please enter tickers here (seperate):")
     st.text("ex for Microsoft, Apple, Amazon, Google, Facebook would be: MSFT, AAPL, AMZN, GOOG, FB")
-    status_radio = st.radio('Please click Search when you are ready.', ('Entry', 'Search'))
+    status_radio = st.radio('Please click run when you are ready.', ('stop', 'run'))
     
     df = pd.DataFrame()
     find_frontier = False
     
-    if status_radio == "Search":
+    if status_radio == "run":
     
         df = yf.download(tickers, start_date, end_date)['Adj Close']
         st.dataframe(df)
@@ -82,7 +85,7 @@ if sidebar_function == "efficient frontier":
                     st.write(yf.Ticker(i).info.get("longName"))
                 
                 with projected_col2:
-                    prices = st.number_input("%s target price" % i, min_value = 0, max_value = 1000000)
+                    prices = st.number_input("%s weight" % i, min_value = 0, max_value = 1000000)
                     projected_prices['target'][str(i)] = prices
                     
                 with projected_col3:
@@ -146,9 +149,15 @@ if sidebar_function == "efficient frontier":
             rf = st.number_input("enter a risk free rate")
             st.write("manual input")
         
+        run_col1, run_col2 = st.beta_columns(2)
         
-        frontier_radio = st.radio('Please click Search when you are ready to run.', ('Entry', 'Search'))
-        if frontier_radio == "Search":
+        with run_col1:
+            frontier_radio = st.radio('Please click run to simulate efficient frontier.', ('stop', 'run'))
+            
+        with run_col2:
+            var_run = st.radio("Run with VaR analysis", ("yes", "no"))
+            
+        if frontier_radio == "run":
             
             if returns_method == "mean_returns":
                 ef = Efficient_Frontier(df, tickers)
@@ -171,14 +180,32 @@ if sidebar_function == "efficient frontier":
             plt.ylabel("return")
             st.pyplot(fig)
             
-            col1, col2 = st.beta_columns(2)
+            min_var_weights = np.array(portfolios[1].drop(labels = ['ret', 'stdev', 'sharpe']))
+            max_sharpe_weights = np.array(portfolios[0].drop(labels = ['ret', 'stdev', 'sharpe']))
             
-            with col1:
-                st.write("mininum variance portfolio (green)", portfolios[1]) 
+            output_col1, output_col2 = st.beta_columns(2)
             
-            with col2:
+            with output_col1:
+                st.write("mininum variance portfolio (green)", portfolios[1])
+            
+            with output_col2:
                 st.write("maximum sharpe portfolio (red)", portfolios[0])
+            
+            min_var_weights_pie = portfolios[1].drop(labels = ['ret', 'stdev', 'sharpe']).to_frame().reset_index()
+            min_var_pie = px.pie(min_var_weights_pie, values=min_var_weights_pie.columns[1], names='index', title='Mininum Variance Portfolio Diversification')
+            st.plotly_chart(min_var_pie)
+            
+            max_sharpe_weights_pie = portfolios[0].drop(labels = ['ret', 'stdev', 'sharpe']).to_frame().reset_index()
+            max_sharpe_pie = px.pie(max_sharpe_weights_pie, values=max_sharpe_weights_pie.columns[1], names='index', title='Maximum Sharpe Portfolio Diversification')
+            st.plotly_chart(max_sharpe_pie)
+            
+            if var_run == "yes":
 
+                st.write("Values are determined using a $100,000 portfolio")
+                
+                var = VaR(df)
+                ef_var = var.ef_var(min_var_weights, max_sharpe_weights)
+                
 if sidebar_function == "ticker drop":
     
     #cut the tickers
@@ -291,6 +318,96 @@ if sidebar_function == "ticker drop":
         
         st.write(fig)
 
+if sidebar_function == "Value at Risk (VaR) analysis":
+    
+    weights_options = ['randomly generated', 'manual input']
+    
+    tickers = st.text_input("Please enter tickers here (seperate):")
+    st.text("ex for Microsoft, Apple, Amazon, Google, Facebook would be: MSFT, AAPL, AMZN, GOOG, FB")
+    status_radio = st.radio('Please click run when you are ready.', ('stop', 'run'))
+    
+    df = pd.DataFrame()
+    find_frontier = False
+    
+    if status_radio == "run":
+    
+        df = yf.download(tickers, start_date, end_date)['Adj Close']
+        st.dataframe(df)
+        
+        find_frontier = True
+        
+    if find_frontier == True:
+        
+        st.subheader('Options for gettings portfolio weights')
+        weights_method = st.selectbox("Select method for inputting weights", weights_options)
+        
+        if weights_method == "randomly generated":
+            
+            tickers = tickers.split(",")
+            tickers = [x.strip(' ') for x in tickers]
+            
+            weights = np.random.random(len(tickers))
+            weights /= np.sum(weights)
+            
+            var = VaR(df)
+            output = var.standard_var(weights)
+        
+        if weights_method == "manual input":
+            
+            tickers = tickers.split(",")
+            tickers = [x.strip(' ') for x in tickers]
+                
+            st.write("Enter target price and years projected for each company")
+            
+            weights = pd.Series(index = tickers)
+            
+            for i in tickers:
+                
+                projected_col1, projected_col2 = st.beta_columns(2)
+                
+                with projected_col1:
+                    st.write(yf.Ticker(i).info.get("longName"))
+                
+                with projected_col2:
+                    weight_input = st.number_input("%s weight" % i, min_value = 0.00, max_value = 100.00)
+                    weights[str(i)] = (weight_input / 100)
+                    
+            
+            var_manual = st.radio("Click run once weights are filled", ("stop", "run"))
+            
+            if var_manual == "run":
+                
+                total_weights = 0
+                
+                for i in weights:
+                    total_weights = total_weights + i
+                    
+                if total_weights < 1.0: 
+                    
+                    st.write("Weights do not equal up to 100 please recheck weights")
+                    st.write("weights: {}".format(total_weights * 100))
+                    var_run = False
+                    
+                if total_weights == 1.0:
+                    var_run = True
+                    
+                if total_weights > 1.0:
+                    
+                    st.write("Using leverage, weights greater than 100%")
+                    var_run = True
+                
+                if var_run == True:
+                    
+                    st.write("ready to run")
+                    
+                    run = st.radio("Click run to start VaR analysis", ("stop", "run"))
+                    
+                    if run == "run":
+                        
+                        weights = np.array(weights)
+                        var = VaR(df)
+                        output = var.standard_var(weights)
+                    
 st.write('Disclaimer: Information and output provided on this site does \
          not constitute investment advice.')
 st.write('Created by Diego Alvarez')
